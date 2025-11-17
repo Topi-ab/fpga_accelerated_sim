@@ -18,6 +18,8 @@
 
 class AArch64Backend {
 public:
+    // For now, the read is 64 bits. To be studied whether 128-bit
+    // read is possible.
     using write_word_t = __uint128_t;   // 128-bit shadow + store
     using read_word_t  = uint64_t;      // 64-bit shadow + load
 
