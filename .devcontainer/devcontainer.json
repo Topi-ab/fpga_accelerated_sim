@@ -1,0 +1,24 @@
+{
+  "name": "fpga-accelerator-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "runArgs": [
+    "--init"
+  ],
+  "remoteUser": "ubuntu",
+  "containerUser": "ubuntu",
+  "postCreateCommand": "cmake -S . -B build && cmake -S . -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=toolchain-arm64.cmake",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.defaultProfile.linux": "bash"
+      },
+      "extensions": [
+        "ms-vscode.cpptools",
+        "ms-vscode.cmake-tools"
+      ]
+    }
+  }
+}
