@@ -2,6 +2,10 @@
 #include <cstdint>
 #include <cstddef>
 
+// ------------------------------------------------------------
+// HELPER FUNCTIONS FOR CALCULATING REQUIRED BIT WIDTHS
+// ------------------------------------------------------------
+
 //
 // FPGA math utilities implementing VHDL functions 1:1
 // using only unsigned __int128 for all computations.

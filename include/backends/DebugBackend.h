@@ -14,8 +14,8 @@
 //  - arbitrary read response backend for debugging
 //  - dumps API calls to stdout
 // ============================================================================
-//  - write atomic size = 128 bits
-//  - read  atomic size = 64 bits
+//  - write atomic size = user definable for debugging purposes.
+//  - read  atomic size = user definable for debugging purposes.
 //  - backend owns WR and RD shadow buffers + dirty flags
 //  - upper layer provides total WR/RD bit sizes via init()
 // ============================================================================
@@ -42,13 +42,13 @@ std::ostream& operator<<(std::ostream& os, unsigned __int128 value)
 
 class DebugBackend {
 public:
-    // using write_word_t = __uint128_t;   // 128-bit shadow + store
-    // using read_word_t  = uint64_t;      // 64-bit shadow + load
-    using write_word_t = __uint16_t;   // 128-bit shadow + store
-    using read_word_t  = uint32_t;      // 64-bit shadow + load
+    // Define atomic word types, e.g. uint32_t for 32-bit atomic access.
+    // Thse types are used for shadow storage and HW writes.
+    using write_word_t = __uint16_t;
+    using read_word_t  = uint32_t;
 
     // ------------------------------------------------------------
-    // Constructor: only maps MMIO, does not allocate shadows
+    // Constructor: Specific to HW interface type
     // ------------------------------------------------------------
     DebugBackend()
     {
@@ -56,7 +56,7 @@ public:
     }
 
     // ------------------------------------------------------------
-    // Destructor: unmap + close
+    // Destructor: Free all allocated resources
     // ------------------------------------------------------------
     ~DebugBackend()
     {
@@ -71,6 +71,7 @@ public:
     {
         std::cout << "BACKEND: DebugBackend: init(wr_bits=" << wr_bits
                   << ", rd_bits=" << rd_bits << ")\n";
+        
         // compute number of atomic words
         wr_words_ = (wr_bits + (sizeof(write_word_t)*8 - 1)) 
                     / (sizeof(write_word_t)*8);
@@ -111,7 +112,6 @@ public:
         if(!dirty || dst != new_data) {
             std::cout << "BACKEND: DebugBackend: Index " << wr_word_index << " marked dirty\n";
             dst = (dst & ~wr_mask) | (wr_data & wr_mask);
-            // wr_dirty_[wr_word_index] = true;
             dirty = true;
         }
     }
@@ -127,6 +127,7 @@ public:
             if (dirty) {
                 std::cout << "BACKEND: DebugBackend: WR FLUSH word " << i
                       << " data=0x" << std::hex << wr_shadow_[i] << std::dec << "\n";
+                // Actual HW write would occur here
                 dirty = false;
             }
         }
@@ -142,20 +143,14 @@ public:
         std::cout << "BACKEND: DebugBackend: RD READ word " << rd_word_index << "\n";
         auto& dirty = rd_dirty_[rd_word_index];
         if (dirty) {
-            // simulate read from HW: fill with dummy data
             std::cout << "BACKEND: DebugBackend: rd_read() word index: " << rd_word_index << " (fetching from HW)\n";
+            
+            // Actual HW read would occur here, instead we fill with synthetic data
             rd_shadow_[rd_word_index] = static_cast<read_word_t>(rd_word_index + 3);
             dirty = false;
         }
         std::cout << "BACKEND: DebugBackend: rd_read() returning data=0x" << std::hex << rd_shadow_[rd_word_index] << std::dec << "\n";
         return rd_shadow_[rd_word_index];
-
-        /*if (rd_dirty_[rd_word_index]) {
-            auto* base = reinterpret_cast<volatile read_word_t*>(mmio_);
-            rd_shadow_[rd_word_index] = base[rd_word_index];
-            rd_dirty_[rd_word_index] = false;
-        }
-        return rd_shadow_[rd_word_index];*/
     }
 
     // ------------------------------------------------------------
@@ -169,13 +164,16 @@ public:
     }
 
 private:
-    // shadow memory
+    // shadow memory for wr
     write_word_t* wr_shadow_ = nullptr;
     bool*         wr_dirty_  = nullptr;
     std::size_t   wr_words_  = 0;
 
+    // shadow memory for rd
     read_word_t*  rd_shadow_ = nullptr;
     bool*         rd_dirty_  = nullptr;
     std::size_t   rd_words_  = 0;
+
+    // HW specific data would go here:
 };
 

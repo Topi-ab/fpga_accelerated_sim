@@ -4,6 +4,8 @@
 
 #include "LinkRunCCA_IF.h"
 
+// Contents of this file should be moved to PacketStructAccessor in the future. TODO:
+
 template <typename Backend, typename IF>
 class FpgaInterface {
     constexpr static auto wr_desc = IF::get_wr_desc();

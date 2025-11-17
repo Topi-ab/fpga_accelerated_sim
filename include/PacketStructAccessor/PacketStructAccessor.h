@@ -7,10 +7,6 @@
 template <typename Backend>
 class PackedStructAccessor {
 public:
-    // using word_t = uint64_t;  // both rd and wr words are 64-bit
-
-    // static constexpr size_t ATOMIC_BITS = sizeof(word_t) * 8;
-
     PackedStructAccessor(Backend& backend,
                          size_t wr_bits,
                          size_t rd_bits)
@@ -20,9 +16,9 @@ public:
     }
 
     // ------------------------------------------------------------
-    // WRITE FIELD (<=64 bits, must not cross 64-bit boundary)
+    // WRITE FIELD, AUTO-DETECTING WORD SIZE
     // ------------------------------------------------------------
-    template <typename word_t = uint32_t>
+    template <typename word_t>
     void write_bits(size_t offset, size_t width, word_t value)
     {
         using atomic_t = typename Backend::write_word_t;
@@ -45,36 +41,15 @@ public:
 
             backend_.wr_write(index, wr_data, wr_mask);
         }
-
-        /*
-        if (width == 0 || width > ATOMIC_BITS)
-            throw std::runtime_error("write_bits: invalid width");
-
-        //word_t mask = (width == 64) ? ~0ULL : ((1ULL << width) - 1ULL);
-        word_t mask = (width == ATOMIC_BITS) ? ~word_t(0) : ((word_t(1) << width) - word_t(1));
-        value &= mask;
-
-        size_t word = offset / ATOMIC_BITS;
-        size_t bit  = offset % ATOMIC_BITS;
-
-        if (bit + width > ATOMIC_BITS)
-            throw std::runtime_error("write_bits: field crosses word boundary");
-
-        word_t wr_mask = mask << bit;
-        word_t wr_data = value << bit;
-
-        backend_.wr_write(word, wr_data, wr_mask);*/
-
     }
 
     // ------------------------------------------------------------
-    // READ FIELD (<=64 bits, must not cross 64-bit boundary)
+    // READ FIELD, AUTO-DETECTING WORD SIZE
     // ------------------------------------------------------------
     template <typename word_t>
     void read_bits(size_t offset, size_t width, word_t& value)
     {
         using atomic_t = typename Backend::read_word_t;
-        //static constexpr size_t ATOMIC_BITS = sizeof(word_t) * 8;
         static constexpr size_t ATOMIC_BITS = sizeof(atomic_t) * 8;
 
         value = 0;
@@ -100,23 +75,6 @@ public:
 
             value |= (v << (bit_start + (index - start_index) * ATOMIC_BITS));
         }
-
-        /*
-        if (width == 0 || width > ATOMIC_BITS)
-            throw std::runtime_error("read_bits: invalid width");
-
-        size_t word = offset / ATOMIC_BITS;
-        size_t bit  = offset % ATOMIC_BITS;
-
-        if (bit + width > ATOMIC_BITS)
-            throw std::runtime_error("read_bits: field crosses word boundary");
-
-        word_t w = backend_.rd_read(word);
-        word_t v = w >> bit;
-        
-        word_t mask = (width == ATOMIC_BITS) ? ~word_t(0) : ((word_t(1) << width) - word_t(1));
-        value = v & mask;
-        */
     }
 
     void wr_flush()

@@ -7,7 +7,6 @@
 
 #include "FpgaGenerics.h"
 
-
 template <FpgaGenerics generics>
 class LinkRunCCA_IF {
     template <typename T>
@@ -22,6 +21,13 @@ class LinkRunCCA_IF {
     };
 
 public:
+
+// ------------------------------------------------------------
+//  APPLICATION-SPECIFIC DEFINITIONS OF INPUT AND OUTPUT FIELDS
+//  START HERE
+// ------------------------------------------------------------
+
+// Input fields (to FPGA)
     enum class LinkRunCCA_collect_t_fields : size_t {
         IN_LABEL,
         X,
@@ -29,9 +35,10 @@ public:
         HAS_RED,
         HAS_GREEN,
         HAS_BLUE,
-        END_OF_FIELDS
+        END_OF_FIELDS // Last element must be END_OF_FIELDS, which is not a real field
     };
 
+// Output fields (from FPGA)
     enum class LinkRunCCA_feature_t_fields : size_t {
         X_LEFT,
         X_RIGHT,
@@ -48,8 +55,10 @@ public:
         YLOW_SEG1_SUM,
         N_SEG0_SUM,
         N_SEG1_SUM,
-        END_OF_FIELDS
+        END_OF_FIELDS // Last element must be END_OF_FIELDS, which is not a real field
     };
+
+    // THIS CODE RESEBLES CODE IN FPGA TO MATCH AUTO-CALCULATED FIELD SIZES
     struct FpgaConstants{
         static constexpr size_t X_SIZE = generics.X_SIZE;
         static constexpr size_t Y_BITS = generics.Y_BITS;
@@ -70,11 +79,14 @@ public:
         static constexpr size_t X_SEG_SUM_BITS = FpgaMath::max2bits(FpgaMath::sum_x(0, X_SIZE - 1) * FpgaMath::fit(Y_LOW_SIZE));
         static constexpr size_t YLOW_SEG_SUM_BITS = FpgaMath::max2bits(FpgaMath::sum_x(0, Y_LOW_MAX) * X_SIZE);
     };
+//------------------------------------------------------------
+// APPLICATION-SPECIFIC DEFINITIONS OF INPUT AND OUTPUT FIELDS
+// END HERE
+//------------------------------------------------------------
 
     template <typename T>
     consteval static auto get_field_desc(T specs) {
         size_t offset = 0;
-        // std::array<FieldDesc, specs.size()> descs{};
         std::array<FieldDesc, specs.size()> descs{};
 
         for (size_t i = 0; i < specs.size(); ++i) {
@@ -97,12 +109,13 @@ public:
     typedef std::array<FieldSpec<LinkRunCCA_feature_t_fields>, (size_t)LinkRunCCA_feature_t_fields::END_OF_FIELDS> 
     LinkRunCCA_feature_t_field_specs_t;
     
-
     consteval auto static
     get_LinkrunCCA_collect_specs()
     {
         using fields = LinkRunCCA_collect_t_fields;
-
+//------------------------------------------------------------
+// APPLICATION-SPECIFIC FIELD SPECS START HERE
+//------------------------------------------------------------
         auto constexpr r = std::to_array<FieldSpec<fields>>({
             { fields::IN_LABEL, 1 },
             { fields::X, consts.X_BITS },
@@ -111,6 +124,9 @@ public:
             { fields::HAS_GREEN, 1 },
             { fields::HAS_BLUE, 1 },
         });
+//------------------------------------------------------------
+// APPLICATION-SPECIFIC FIELD SPECS END HERE
+//------------------------------------------------------------
 
         static_assert([=]{
             for (std::size_t i = 0; i < r.size(); ++i)
@@ -129,6 +145,9 @@ public:
     {
         using fields = LinkRunCCA_feature_t_fields;
 
+//------------------------------------------------------------
+// APPLICATION-SPECIFIC FIELD SPECS START HERE
+//------------------------------------------------------------
         auto constexpr r = std::to_array<FieldSpec<fields>>({
             { LinkRunCCA_feature_t_fields::X_LEFT, consts.X_BITS },
             { LinkRunCCA_feature_t_fields::X_RIGHT, consts.X_BITS },
@@ -146,6 +165,9 @@ public:
             { LinkRunCCA_feature_t_fields::N_SEG0_SUM, consts.N_SEG_SUM_BITS },
             { LinkRunCCA_feature_t_fields::N_SEG1_SUM, consts.N_SEG_SUM_BITS },
         });
+//------------------------------------------------------------
+// APPLICATION-SPECIFIC FIELD SPECS END HERE
+//------------------------------------------------------------
 
         static_assert([=]{
             for (std::size_t i = 0; i < r.size(); ++i)
@@ -158,6 +180,7 @@ public:
 
         return r;
     }
+
 public:
     consteval static auto get_wr_desc() {
         constexpr auto specs = get_LinkrunCCA_collect_specs();

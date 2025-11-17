@@ -1,6 +1,9 @@
 #pragma once
 #include <cstddef>
 
+// ------------------------------------------------------------
+// GENERIC PARAMETERS FOR LinkRunCCA INTERFACE
+// ------------------------------------------------------------
 
 struct FpgaGenerics {
     const size_t X_SIZE;
