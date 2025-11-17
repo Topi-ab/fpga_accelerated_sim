@@ -122,7 +122,9 @@ public:
         auto* base = reinterpret_cast<volatile write_word_t*>(mmio_);
         for (std::size_t i = 0; i < wr_words_; i++) {
             if (wr_dirty_[i]) {
+                // This will be replaced with 128-bit atomic write later.
                 base[i] = wr_shadow_[i];
+
                 wr_dirty_[i] = false;
             }
         }
@@ -137,7 +139,9 @@ public:
     {
         if (rd_dirty_[rd_word_index]) {
             auto* base = reinterpret_cast<volatile read_word_t*>(mmio_);
+            // This will be replaced with 128-bit atomic read later.
             rd_shadow_[rd_word_index] = base[rd_word_index];
+
             rd_dirty_[rd_word_index] = false;
         }
         return rd_shadow_[rd_word_index];
@@ -154,18 +158,19 @@ public:
     }
 
 private:
-    // MMIO
-    int     fd_ = -1;
-    void*   mmio_ = nullptr;
-    size_t  map_size_ = 0;
-
-    // shadow memory
+    // shadow memory for wr
     write_word_t* wr_shadow_ = nullptr;
     bool*         wr_dirty_  = nullptr;
     std::size_t   wr_words_  = 0;
 
+    // shadow memory for rd
     read_word_t*  rd_shadow_ = nullptr;
     bool*         rd_dirty_  = nullptr;
     std::size_t   rd_words_  = 0;
+
+    // Device specific fields
+    int     fd_ = -1;
+    void*   mmio_ = nullptr;
+    size_t  map_size_ = 0;
 };
 
