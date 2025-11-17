@@ -112,7 +112,14 @@ public:
             { fields::HAS_BLUE, 1 },
         });
 
-        static_assert(r.size() == (size_t)fields::END_OF_FIELDS, "Wrong number of fields");
+        static_assert([=]{
+            for (std::size_t i = 0; i < r.size(); ++i)
+                if ((std::size_t)r[i].field != i)
+                    return false;
+            return true;
+        }(), "Collect field definitions out of order");
+
+        static_assert(r.size() == (size_t)fields::END_OF_FIELDS, "Collect fields: wrong number of fields");
 
         return r;
     }
@@ -139,8 +146,15 @@ public:
             { LinkRunCCA_feature_t_fields::N_SEG0_SUM, consts.N_SEG_SUM_BITS },
             { LinkRunCCA_feature_t_fields::N_SEG1_SUM, consts.N_SEG_SUM_BITS },
         });
-        
-        static_assert(r.size() == (size_t)fields::END_OF_FIELDS, "Wrong number of fields");
+
+        static_assert([=]{
+            for (std::size_t i = 0; i < r.size(); ++i)
+                if ((std::size_t)r[i].field != i)
+                    return false;
+            return true;
+        }(), "Feature field definitions out of order");
+
+        static_assert(r.size() == (size_t)fields::END_OF_FIELDS, "Feature fields: wrong number of fields");
 
         return r;
     }
