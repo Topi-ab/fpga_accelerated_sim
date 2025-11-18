@@ -3,7 +3,6 @@
 #include <cstdint>
 #include <stdexcept>
 
-// template <typename Backend, typename word_t = uint64_t>
 template <typename Backend>
 class PackedStructAccessor {
 public:
