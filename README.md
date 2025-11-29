@@ -51,5 +51,5 @@ This will remove old overlay, and loads the new bitstream with the new overlay. 
 `echo 200000000 > /sys/devices/platform/fpga-region/fpga-region:clocking0/set_rate`<br>
 This will change the clock speed exported from PS to PL to 200 MHz. Tested to work. 250 MHz is already too fast speed.
 
-`time bash -c "./fpga_app | md5sum"`<br>
-This runs the application and checks the result against known results (not known, sorry). It should return `955afbd80fb573545ce168c0f81341dd` in about 25.5 secs.
+`time bash -c "./fpga_app -d /dev/uio4 | md5sum"`  Check from dmesg what is your uio device.<br>
+This runs the application and checks the result against known results (not known, sorry). It should return `b801c5865a09c447291e70db5e7c4e35` in about 25.5 secs.

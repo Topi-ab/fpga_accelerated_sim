@@ -1,8 +1,8 @@
 #include <vector>
 #include <variant>
 #include <memory>
-
 #include <iostream>
+#include <chrono>
 
 #include "ver2/FpgaGenerics.h"
 
@@ -214,6 +214,10 @@ void TestRun(emulator_t &iface) {
     const size_t repeat_y_size = 512;
     const size_t max_clk_cnt = 50000000;
 
+    using clock = std::chrono::steady_clock;
+
+    auto t0 = clock::now();    
+
     TestFrames test_frames(x_size, y_size, repeat_y_size);
 
     iface.wr_field(wr_add::RST, 1);
@@ -253,34 +257,75 @@ void TestRun(emulator_t &iface) {
         }
     }
 
-    std::cout << "Emulation ended\n\n Processed " << clk_cnt << " clock cycles.\n\n";
+    auto t1 = clock::now();
+    double usec = std::chrono::duration<double, std::micro>(t1 - t0).count();
+    double mhz  = clk_cnt / usec;
+
+
+    std::cerr << "Emulation ended\n";
+    std::cerr << "Processed " << clk_cnt << " clock cycles\n";
+    std::cerr << "Elapsed time: " << usec << " us\n";
+    std::cerr << "Speed: " << mhz << " MHz\n";
 }
 
+#include <iostream>
+#include <string>
 
-
-int main()
+void PrintHelp(const char* progname)
 {
-#ifdef DEBUG_PRINT
-    std::cout << "FPGA Interface Test" << std::endl;
-#endif
+    std::cerr <<
+        "Usage: " << progname << " -d <uio_device>\n"
+        "\n"
+        "Options:\n"
+        "  -d <path>   UIO device file, e.g. /dev/uio4\n"
+        "  -h          Show this help\n"
+        "\n";
+}
 
+int main(int argc, char* argv[]) {
+    std::string device_path;
 
-    BackendType hw("/dev/uio4");
+    // -------------------------------
+    // Parse command line arguments
+    // -------------------------------
+    for (int i = 1; i < argc; ++i) {
+        std::string arg = argv[i];
 
-    emulator_t emulator(hw);
+        if (arg == "-h" || arg == "--help") {
+            PrintHelp(argv[0]);
+            return 0;
+        }
 
-    if(true) {
-        TestRun(emulator);
+        if (arg == "-d") {
+            if (i + 1 >= argc) {
+                std::cerr << "Error: -d requires a device file.\n\n";
+                PrintHelp(argv[0]);
+                return 1;
+            }
+            device_path = argv[++i];
+            continue;
+        }
 
-        return 0;
+        std::cerr << "Unknown option: " << arg << "\n\n";
+        PrintHelp(argv[0]);
+        return 1;
     }
 
-    emulator.wr_field(wr_add::IN_LABEL, 1);
-    emulator.wr_flush();
-    std::cout << "Flushed\n";
-    emulator.wr_field(wr_add::HAS_BLUE, 1);
+    // -------------------------------------
+    // Require a device file unless disabled
+    // -------------------------------------
+    if (device_path.empty()) {
+        std::cerr << "Error: No UIO device specified.\n\n";
+        PrintHelp(argv[0]);
+        return 1;
+    }
 
-    emulator.wr_flush();
+    // -------------------------------------
+    // Start hardware emulator backend
+    // -------------------------------------
+    BackendType hw(device_path.c_str());
+    emulator_t emulator(hw);
 
+    TestRun(emulator);
     return 0;
 }
