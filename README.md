@@ -53,3 +53,17 @@ This will change the clock speed exported from PS to PL to 200 MHz. Tested to wo
 
 `time bash -c "./fpga_app -d /dev/uio4 | md5sum"`  Check from dmesg what is your uio device.<br>
 This runs the application and checks the result against known results (not known, sorry). It should return `b801c5865a09c447291e70db5e7c4e35` in about 25.5 secs.
+
+# Theory of operation
+
+The emulator wrapper code to the DUT (vhdl) exposes a set of AXI4-Lite registers. The DUT input / ouptut signals are redirected starting at byte address 0x80.
+
+On byte address 0x00, bit 0, is a clock advancing command. Writing value 1 to the register generates a single clock pulse for the DUT.
+
+file `include/ver2/fields_linkruncca.h` lists the packing of inputs (wr_fields) to DUT, and outputs (rd_fields) from the DUT, and their respective bit_widths. Note that part of the bit widths are calculated using FPGA generics (X_SIZE and Y_BITS).
+
+The FPGA code has same field definitions in `fpga/src/rtl/vhdl_linkruncca_pkg_ellipses_linescan.vhdl`. procedures `to_bits()` and `from_bits()` are used to serialize / deserialize structural data.
+
+SW generates stimulus input by writing to `emulator_fields::wr_field()` function, which converts bit-sized writes to device specific (defined in `include/ver2/hw_access_aarch64.h` `wr_word_t` and `rd_word_t`) write-sizes. The data is first written to a shadow register, which are marked dirty upon writing. `emulator_fields::wr_flush()` writes all dirty words to the actual device, and marks all words in the shadow as non-dirty.
+
+Read is the opposite. `emulator_fields::rd_flush()` marks all rd shadow entries as dirty, and upon calling `emulator_fields::rd_field()` the data is fetched from the real hardware, and corresponding data on shadow is marked as non-diry (so that it won't get re-read again).
