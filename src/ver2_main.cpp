@@ -4,7 +4,7 @@
 
 #include <iostream>
 
-#include "FpgaInterface/FpgaGenerics.h"
+#include "ver2/FpgaGenerics.h"
 
 #include <boost/multiprecision/cpp_int.hpp>
 using boost::multiprecision::cpp_int;
@@ -212,13 +212,19 @@ void TestRun(emulator_t &iface) {
     const size_t y_bits = llcca_gens.Y_BITS;
     const size_t y_size = (size_t)1 << y_bits;
     const size_t repeat_y_size = 512;
+    const size_t max_clk_cnt = 5000000;
 
     TestFrames test_frames(x_size, y_size, repeat_y_size);
 
     iface.wr_field(wr_add::RST, 1);
+    iface.wr_field(wr_add::DATAVALID, 1);
     iface.wr_flush();
+    for(int i=0; i < 2*x_size; i++)
+        iface.wr_raw(0, (uint32_t)1);
     iface.wr_field(wr_add::RST, 0);
+    iface.wr_field(wr_add::DATAVALID, 0);
     iface.wr_flush();
+    iface.wr_raw(0, (uint32_t)1);
 
     uint64_t clk_cnt = 0;
     for(size_t frame_idx = 0; frame_idx < frames; ++frame_idx) {
@@ -239,10 +245,11 @@ void TestRun(emulator_t &iface) {
 
                     std::cout << "\n\n";
                 }
+                if(clk_cnt >= max_clk_cnt)
+                    break;
             }
-#ifdef DEBUG_PRINT
-            //std::cout << "\n";
-#endif
+            if(clk_cnt >= max_clk_cnt)
+                break;
         }
     }
 }
