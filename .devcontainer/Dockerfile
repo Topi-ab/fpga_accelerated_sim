@@ -4,6 +4,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Update + essential build tools
 RUN apt-get update && apt-get install -y \
+    file \
     build-essential \
     cmake \
     ninja-build \
