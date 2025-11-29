@@ -1,0 +1,6 @@
+/include/ "../../../tmp/pl.dtsi"
+
+/* Only overrides the existing node by label */
+&axi_passthrough_stub_0 {
+	compatible = "generic-uio", "xlnx,axi-passthrough-stub-v1-0-1.0", "uio";
+};

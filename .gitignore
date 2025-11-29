@@ -1,3 +1,6 @@
 tmp/
 build/
 build-arm64/
+fpga_out/
+fpga_proj/
+.Xil/
