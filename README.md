@@ -1,5 +1,26 @@
 # RTL Emulator Based on the Kria KV260 Evaluation Board
 
+## Supported Linux versions on Kria
+
+This project expects the Ubuntu overlay-enabled Linux distribution for Kria, i.e. a system that supports loading FPGA bitstreams and device-tree overlays using `fpgautil`. Verified environment:
+
+```
+$ sb_release -a
+No LSB modules are available.
+Distributor ID:	Ubuntu
+Description:	Ubuntu 24.04.3 LTS
+Release:	24.04
+Codename:	noble
+```
+
+### Needed packages (incomplete)
+
+```
+sudo apt install fpga-manager-xlnx device-tree-compiler xrt
+```
+
+## Project scope
+
 This project demonstrates FPGA-based acceleration of the LinkrunCCA blob-detection algorithm.
 The RTL code is wrapped in an emulator shell that allows software to:
 
