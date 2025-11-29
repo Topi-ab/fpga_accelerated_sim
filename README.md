@@ -5,7 +5,7 @@
 This project expects the Ubuntu overlay-enabled Linux distribution for Kria, i.e. a system that supports loading FPGA bitstreams and device-tree overlays using `fpgautil`. Verified environment:
 
 ```
-$ sb_release -a
+$ lsb_release -a
 No LSB modules are available.
 Distributor ID:	Ubuntu
 Description:	Ubuntu 24.04.3 LTS
