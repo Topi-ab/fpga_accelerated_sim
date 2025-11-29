@@ -134,8 +134,6 @@ public:
         auto begin_idx = bit_offset / ATOMIC_BITS;
         auto end_idx   = (bit_offset + bit_width - 1) / ATOMIC_BITS;
 
-        size_t dst_pos = 0;  // where next chunk goes in r
-
         for (auto idx = begin_idx; idx <= end_idx; ++idx) {
             atomic_t word = shadow_.read(idx);
 
@@ -155,7 +153,6 @@ public:
             size_t abs_bit_pos = idx * ATOMIC_BITS + bit_begin;
             size_t dst_pos = abs_bit_pos - bit_offset;            
             r |= word_t(rd_word) << dst_pos;
-            //dst_pos += rd_bits;
         }
 
         return r;

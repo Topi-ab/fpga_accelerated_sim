@@ -5,10 +5,10 @@
 
 class hw_access_aarch64 {
     public:
-    // using wr_word_t = uint8_t;
-    using rd_word_t = uint8_t;
+    // using wr_word_t = uint64_t;
+    // using rd_word_t = uint64_t;
     using wr_word_t = __uint128_t;
-    // using rd_word_t = __uint128_t;
+    using rd_word_t = __uint128_t;
 
     hw_access_aarch64(const char *uio_dev) {
         fd_ = ::open(uio_dev, O_RDWR | O_SYNC);

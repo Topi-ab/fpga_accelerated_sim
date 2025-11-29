@@ -212,7 +212,7 @@ void TestRun(emulator_t &iface) {
     const size_t y_bits = llcca_gens.Y_BITS;
     const size_t y_size = (size_t)1 << y_bits;
     const size_t repeat_y_size = 512;
-    const size_t max_clk_cnt = 5000000;
+    const size_t max_clk_cnt = 50000000;
 
     TestFrames test_frames(x_size, y_size, repeat_y_size);
 
@@ -252,6 +252,8 @@ void TestRun(emulator_t &iface) {
                 break;
         }
     }
+
+    std::cout << "Emulation ended\n\n Processed " << clk_cnt << " clock cycles.\n\n";
 }
 
 
