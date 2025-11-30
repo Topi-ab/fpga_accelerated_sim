@@ -21,7 +21,7 @@ This is a class that user needs to create/modify if method to access to HW regis
 ## shadow
 
 => <b>This class needs to reside in memory as an object.</b><br>
-=> <b>User does not need to modify touch this file.</b>
+=> <b>User does not need to modify this file.</b>
 
 The next layer up in call graph is <i>shadow</i> class (`shadow.h`), which creates cache array for both read ad write actions.
 
@@ -51,7 +51,7 @@ This class provides:
 ## bit_slicer
 
 => <b>This class needs to reside in memory as an object.</b><br>
-=> <b>User does not need to modify touch this file.</b>
+=> <b>User does not need to modify this file.</b>
 
 The next layer up in call graph is <i>bit_slicer</i>. This provides write and read calls to write random bit widths to bit-addressed address space.
 
@@ -69,7 +69,7 @@ This class provides:
 ## fields
 
 => <b>This class is a template class only, and does not provide any object to wrok on.</b><br>
-=> <b>User does not need to modify touch this file.</b>
+=> <b>User does not need to modify this file.</b>
 
 This class converts user-defined fields specifications to bit-addresses and bit-widths.
 
@@ -107,7 +107,7 @@ The FPGA code has user-modifiable serializer & deserializer procedures to match 
 ## emulator_fields
 
 => <b>This class needs to reside in memory as an object.</b><br>
-=> <b>User does not need to modify touch this file.</b>
+=> <b>User does not need to modify this file.</b>
 
 This class combines all other classes together, and provides a single 
 interface to user application to write and read bit-fields and direct hw registers.
