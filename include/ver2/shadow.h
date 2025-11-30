@@ -17,7 +17,7 @@ public:
         rd_dirty_.fill(true);
     }
 
-    void inline write(size_t word_offset, wr_word_t data, wr_word_t mask) {
+    inline void write(size_t word_offset, wr_word_t data, wr_word_t mask) {
         if(word_offset >= wr_entries) {
             throw std::runtime_error(std::format("shadow::write() word_offset ({}) out of range", word_offset));
         }
@@ -26,7 +26,7 @@ public:
         wr_dirty_[word_offset] = true;
     }
 
-    void inline wr_flush() {
+    inline void wr_flush() {
         for(size_t idx = 0; idx < wr_entries; idx++) {
             if(wr_dirty_[idx]) {
                 hw_.wr(idx, wr_cache_[idx]);
@@ -35,11 +35,11 @@ public:
         }
     }
 
-    void inline wr_raw(size_t word_address, wr_word_t data) {
+    inline void wr_raw(size_t word_address, wr_word_t data) {
       hw_.wr_raw(word_address, data);
     }
 
-    rd_word_t inline read(size_t word_offset) {
+    inline rd_word_t read(size_t word_offset) {
         if(word_offset >= rd_entries) {
             throw std::runtime_error(std::format("shadow::read() word_offset ({}) out of range", word_offset));
         }
@@ -51,11 +51,11 @@ public:
         return rd_cache_[idx];
     }
 
-    void inline rd_flush() noexcept {
+    inline void rd_flush() noexcept {
         rd_dirty_.fill(true);
     }
 
-    rd_word_t rd_raw(size_t word_address) {
+    inline rd_word_t rd_raw(size_t word_address) {
         return hw_.rd_raw(word_address);
     }
 private:

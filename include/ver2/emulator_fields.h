@@ -28,7 +28,6 @@ public:
     inline void rd_field(fields_t::rd_fields field, word_t &data) {
         auto desc = fields_t::rd_desc(field);
         data = slicer_.template read_bits<word_t>(desc.bit_offset, desc.bit_width);
-        // data = slicer_.read_bits(desc.bit_offset, desc.bit_width);
     }
 
     inline void wr_flush() {

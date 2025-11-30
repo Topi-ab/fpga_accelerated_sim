@@ -5,10 +5,10 @@
 
 class hw_access_aarch64 {
     public:
-    // using wr_word_t = uint64_t;
-    // using rd_word_t = uint64_t;
-    using wr_word_t = __uint128_t;
-    using rd_word_t = __uint128_t;
+    using wr_word_t = uint64_t;
+    using rd_word_t = uint64_t;
+    // using wr_word_t = __uint128_t;
+    // using rd_word_t = __uint128_t;
 
     hw_access_aarch64(const char *uio_dev) {
         fd_ = ::open(uio_dev, O_RDWR | O_SYNC);
@@ -51,7 +51,7 @@ class hw_access_aarch64 {
             close(fd_);
     }
 
-    void wr_raw(size_t word_address, wr_word_t data) noexcept {
+    inline void wr_raw(size_t word_address, wr_word_t data) noexcept {
         auto* base = reinterpret_cast<volatile wr_word_t*>(mmio_);
 
         if constexpr (sizeof(wr_word_t)*8 == 128) {
@@ -64,11 +64,11 @@ class hw_access_aarch64 {
         }
     }
 
-    void wr(size_t word_offset, wr_word_t data) noexcept {
+    inline void wr(size_t word_offset, wr_word_t data) noexcept {
         wr_raw(first_wr_word_address + word_offset, data);
     }
 
-    rd_word_t rd_raw(size_t word_address) noexcept {
+    inline rd_word_t rd_raw(size_t word_address) noexcept {
         auto volatile * base = reinterpret_cast<volatile rd_word_t*>(mmio_);
 
         if constexpr (sizeof(rd_word_t)*8 == 128) {
@@ -76,8 +76,6 @@ class hw_access_aarch64 {
             rd_word_t data;
             uint64_t *v = reinterpret_cast<uint64_t *>(&data);
             load128(p, v[0], v[1]);
-            /*if(data != 0)
-                std::cout << "read: " << v[0] << v[1] << "\n";*/
             return data;
         }
         else {
@@ -85,11 +83,11 @@ class hw_access_aarch64 {
         }
     }
 
-    rd_word_t rd(size_t word_offset) noexcept {
+    inline rd_word_t rd(size_t word_offset) noexcept {
         return rd_raw(first_rd_word_address + word_offset);
     }
 private:
-    static inline void store128(volatile void *ptr, uint64_t lo, uint64_t hi)
+    inline static void store128(volatile void *ptr, uint64_t lo, uint64_t hi)
     {
         __asm__ volatile(
             "stp %x0, %x1, [%x2]"
@@ -99,7 +97,7 @@ private:
         );
     }
 
-    static inline void load128(const volatile void *ptr, uint64_t &lo, uint64_t &hi)
+    inline static void load128(const volatile void *ptr, uint64_t &lo, uint64_t &hi)
     {
         __asm__ volatile(
             "ldp %x0, %x1, [%x2]"
