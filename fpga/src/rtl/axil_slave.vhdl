@@ -3,8 +3,6 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 use ieee.math_real.all;
 
--- write_hw_platform -fixed -include_bit -force -file /home/topi/work/fpga-kiihdytys/vivado_kiihdytys/accelerator_top.xsa
-
 entity axil_slave is
     generic(
         rd_dwords: natural;
