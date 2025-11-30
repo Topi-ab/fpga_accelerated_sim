@@ -52,8 +52,6 @@ architecture rtl of emulator_top is
         );
     end component;
 
-    -- signal tmp_pix_in: linkruncca_collect_t;
-
     type feed_t is record
         rst: std_logic;
         datavalid: std_logic;
