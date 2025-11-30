@@ -53,7 +53,7 @@ This class provides:
 => <b>This class needs to reside in memory as an object.</b><br>
 => <b>User does not need to modify this file.</b>
 
-The next layer up in call graph is <i>bit_slicer</i>. This provides write and read calls to write random bit widths to bit-addressed address space.
+The next layer up in call graph is <i>bit_slicer</i>. This provides write and read calls to write/read random bit widths to/from bit-addressed address space.
 
 The code splits single bit-vector write/read to one or more writes/reads to <i>shadow</i> class.
 
@@ -98,7 +98,7 @@ The example code uses `FpgaGenerics_linkrucca` as a means to calculate interface
 
 User needs to provide:
 - `enum class wr_fields: size_t...` definiton for all wr fields. The last entry needs to be `END_OF_FIELDS`.
-- `enum class rd_fields: size_t...` definiton for all wr fields. The last entry needs to be `END_OF_FIELDS`.
+- `enum class rd_fields: size_t...` definiton for all rd fields. The last entry needs to be `END_OF_FIELDS`.
 - `get_wr_specs()` contents listing all bit widths for each field. The list needs to be in order they appear in FPGA DUT interface.
 - `get_rd_specs()` contents listing all bit widths for each field. The list needs to be in order they appear in FPGA DUT interface.
 
