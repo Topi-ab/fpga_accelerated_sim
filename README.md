@@ -86,14 +86,11 @@ The .bit.bin and .dtbo files must be in the current directory.
 
 ## Set PL Clock Frequency
 
-<strike>`echo 200000000 > /sys/devices/platform/fpga-region/fpga-region:clocking0/set_rate`
+`echo 200000000 > /sys/devices/platform/fpga-region/fpga-region:clocking0/set_rate`
 
 This sets the PL clock to 200 MHz.
 
-250 MHz is already too fast.</strike>
-
-The default 99.99.. MHz clock speed is good to go, and does not need to be touched. 
-The clock generator in BD design is generating 250 MHz clock for the emulator.
+250 MHz is already too fast.
 
 ## Run the Application
 
@@ -102,8 +99,8 @@ Find your /dev/uioX from dmesg, then run:
 `time bash -c "./fpga_app -d /dev/uio4 | md5sum"`<br>
 replace `/dev/uio4` with the uio device you got.
 
-Expected checksum:
-b801c5865a09c447291e70db5e7c4e35  
+Expected checksum:<br>
+b801c5865a09c447291e70db5e7c4e35<br>
 Runtime: ~25.5 seconds.
 
 # Theory of Operation
@@ -114,7 +111,7 @@ The RTL emulator exposes a set of AXI4-Lite registers.
 - Address **0x00**, bit **0** → writing `1` generates a **single DUT clock pulse**.
 
 Field packing for DUT inputs (wr_fields) and outputs (rd_fields) is defined in:<br>
-  `include/ver2/fields_linkruncca.h`
+  `include/emulator/fields_linkruncca.h`
 
 Bit widths depend on generics (X_SIZE, Y_BITS).
 

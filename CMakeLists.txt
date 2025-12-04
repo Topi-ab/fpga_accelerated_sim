@@ -20,7 +20,7 @@
 #### Application
 #### -------------------------------------------------------------------
 ###add_executable(fpga_app
-###    src/ver2_main.cpp
+###    src/main.cpp
 ###)
 ###
 #### Link the header-only library to the app
@@ -73,7 +73,7 @@ target_include_directories(fpga_iface
 # Application executable
 # ------------------------------------------------------------
 add_executable(fpga_app
-    src/ver2_main.cpp
+    src/main.cpp
 )
 
 target_link_libraries(fpga_app PRIVATE fpga_iface)
