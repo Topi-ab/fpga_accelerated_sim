@@ -47,8 +47,12 @@ Instructions assume Vivado 2024.2 on Linux.
    CLI:
      write_hw_platform -fixed -include_bit -force -file fpga_proj/accelerator_top.xsa
 
-5. Extract device tree overlay:
+5. Extract device tree overlay, run the following in terminal:<br>
+   ```
+   . path/to/Vivado/installation/Vivado/2024.2/settings64.sh
    fpga/src/sh/extract_dtsi.sh
+   ```
+   
 
 This produces two files under fpga_out/, which must be copied to the Kria module.
 
@@ -73,24 +77,29 @@ Log in via SSH.
 
 ## Load FPGA Bitstream and Overlay (as root)
 
+```
 fpgautil -R && sleep 1 && \
 fpgautil -b accelerator_top.bit.bin -o accelerator_top.dtbo
+```
 
 The .bit.bin and .dtbo files must be in the current directory.
 
 ## Set PL Clock Frequency
 
-echo 200000000 > /sys/devices/platform/fpga-region/fpga-region:clocking0/set_rate
+<strike>`echo 200000000 > /sys/devices/platform/fpga-region/fpga-region:clocking0/set_rate`
 
 This sets the PL clock to 200 MHz.
 
-250 MHz is already too fast.
+250 MHz is already too fast.</strike>
+
+The default 99.99.. MHz clock speed is good to go, and does not need to be touched. 
+The clock generator in BD design is generating 250 MHz clock for the emulator.
 
 ## Run the Application
 
 Find your /dev/uioX from dmesg, then run:
 
-time bash -c "./fpga_app -d /dev/uio4 | md5sum"<br>
+`time bash -c "./fpga_app -d /dev/uio4 | md5sum"`<br>
 replace `/dev/uio4` with the uio device you got.
 
 Expected checksum:
@@ -104,35 +113,35 @@ The RTL emulator exposes a set of AXI4-Lite registers.
 - DUT input and output fields begin at **byte address 0x80**.
 - Address **0x00**, bit **0** → writing `1` generates a **single DUT clock pulse**.
 
-Field packing for DUT inputs (wr_fields) and outputs (rd_fields) is defined in:
-  include/ver2/fields_linkruncca.h
+Field packing for DUT inputs (wr_fields) and outputs (rd_fields) is defined in:<br>
+  `include/ver2/fields_linkruncca.h`
 
 Bit widths depend on generics (X_SIZE, Y_BITS).
 
-Matching FPGA-side field definitions are in:
-  fpga/src/rtl/vhdl_linkruncca_pkg_ellipses_linescan.vhdl
+Matching FPGA-side field definitions are in:<br>
+  `fpga/src/rtl/vhdl_linkruncca_pkg_ellipses_linescan.vhdl`
 
-Serialization/deserialization uses:
-  to_bits()
-  from_bits()
+Serialization/deserialization uses:<br>
+  `to_bits()`<br>
+  `from_bits()`
 
 ## Software Access Layer
 
-Writing:
-  emulator_fields::wr_field()
-    - Packs field writes into device-specific words.
+Writing:<br>
+  `emulator_fields::wr_field()`<br>
+    - Packs field writes into device-specific words.<br>
     - Writes into a shadow register and marks it dirty.
 
-  emulator_fields::wr_flush()
-    - Writes all dirty shadow entries to hardware.
+  `emulator_fields::wr_flush()`<br>
+    - Writes all dirty shadow entries to hardware.<br>
     - Clears dirty flags.
 
-Reading:
-  emulator_fields::rd_flush()
+Reading:<br>
+  `emulator_fields::rd_flush()`<br>
     - Marks all read shadow entries dirty.
 
-  emulator_fields::rd_field()
-    - Reads from hardware into shadow registers as needed.
+  `emulator_fields::rd_field()`<br>
+    - Reads from hardware into shadow registers as needed.<br>
     - Clears dirty flags.
 
 This minimizes redundant AXI-Lite reads/writes and keeps access efficient.

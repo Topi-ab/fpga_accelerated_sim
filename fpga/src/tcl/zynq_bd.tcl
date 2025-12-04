@@ -145,6 +145,7 @@ xilinx.com:ip:axi_data_fifo:2.1\
 xilinx.com:ip:axi_crossbar:2.1\
 xilinx.com:ip:axi_dwidth_converter:2.1\
 xilinx.com:ip:axi_protocol_converter:2.1\
+xilinx.com:ip:clk_wiz:6.0\
 "
 
    set list_ips_missing ""
@@ -267,6 +268,7 @@ proc create_root_design { parentCell } {
     CONFIG.PSU_MIO_11_DRIVE_STRENGTH {4} \
     CONFIG.PSU_MIO_11_SLEW {slow} \
     CONFIG.PSU_MIO_12_DRIVE_STRENGTH {4} \
+    CONFIG.PSU_MIO_12_INPUT_TYPE {cmos} \
     CONFIG.PSU_MIO_12_POLARITY {Default} \
     CONFIG.PSU_MIO_12_SLEW {slow} \
     CONFIG.PSU_MIO_13_DRIVE_STRENGTH {4} \
@@ -416,6 +418,7 @@ proc create_root_design { parentCell } {
     CONFIG.PSU_MIO_77_DRIVE_STRENGTH {4} \
     CONFIG.PSU_MIO_77_SLEW {slow} \
     CONFIG.PSU_MIO_7_DRIVE_STRENGTH {4} \
+    CONFIG.PSU_MIO_7_INPUT_TYPE {cmos} \
     CONFIG.PSU_MIO_7_POLARITY {Default} \
     CONFIG.PSU_MIO_7_SLEW {slow} \
     CONFIG.PSU_MIO_8_DRIVE_STRENGTH {4} \
@@ -700,6 +703,22 @@ Port;FD4A0000;FD4AFFFF;0|FPD;DPDMA;FD4C0000;FD4CFFFF;0|FPD;DDR_XMPU5_CFG;FD05000
   # Create instance: axi_protocol_convert_0, and set properties
   set axi_protocol_convert_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_protocol_converter:2.1 axi_protocol_convert_0 ]
 
+  # Create instance: clk_250m, and set properties
+  set clk_250m [ create_bd_cell -type ip -vlnv xilinx.com:ip:clk_wiz:6.0 clk_250m ]
+  set_property -dict [list \
+    CONFIG.CLKOUT1_JITTER {78.874} \
+    CONFIG.CLKOUT1_PHASE_ERROR {74.581} \
+    CONFIG.CLKOUT1_REQUESTED_OUT_FREQ {250} \
+    CONFIG.JITTER_SEL {Min_O_Jitter} \
+    CONFIG.MMCM_BANDWIDTH {HIGH} \
+    CONFIG.MMCM_CLKFBOUT_MULT_F {15.625} \
+    CONFIG.MMCM_CLKOUT0_DIVIDE_F {6.250} \
+    CONFIG.MMCM_DIVCLK_DIVIDE {1} \
+    CONFIG.USE_LOCKED {false} \
+    CONFIG.USE_RESET {false} \
+  ] $clk_250m
+
+
   # Create interface connections
   connect_bd_intf_net -intf_net axi_bram_ctrl_0_BRAM_PORTA [get_bd_intf_pins axi_bram_ctrl_0/BRAM_PORTA] [get_bd_intf_pins blk_mem_gen_0/BRAM_PORTA]
   connect_bd_intf_net -intf_net axi_crossbar_0_M00_AXI [get_bd_intf_pins axi_crossbar_0/M00_AXI] [get_bd_intf_pins axi_data_fifo_1/S_AXI]
@@ -712,6 +731,18 @@ Port;FD4A0000;FD4AFFFF;0|FPD;DPDMA;FD4C0000;FD4CFFFF;0|FPD;DDR_XMPU5_CFG;FD05000
   connect_bd_intf_net -intf_net zynq_ultra_ps_e_0_M_AXI_HPM0_FPD [get_bd_intf_pins zynq_ultra_ps_e_0/M_AXI_HPM0_FPD] [get_bd_intf_pins axi_data_fifo_0/S_AXI]
 
   # Create port connections
+  connect_bd_net -net clk_wiz_0_clk_out1  [get_bd_pins clk_250m/clk_out1] \
+  [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
+  [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] \
+  [get_bd_pins axi_data_fifo_0/aclk] \
+  [get_bd_pins axi_crossbar_0/aclk] \
+  [get_bd_pins axi_data_fifo_1/aclk] \
+  [get_bd_pins axi_dwidth_converter_0/s_axi_aclk] \
+  [get_bd_pins axi_protocol_convert_0/aclk] \
+  [get_bd_pins axi_passthrough_stub_0/S_AXI_ACLK] \
+  [get_bd_pins axi_passthrough_stub_0/EXT_ACLK] \
+  [get_bd_ports clk_250m] \
+  [get_bd_pins axi_bram_ctrl_0/s_axi_aclk]
   connect_bd_net -net proc_sys_reset_0_interconnect_aresetn  [get_bd_pins proc_sys_reset_0/interconnect_aresetn] \
   [get_bd_pins axi_passthrough_stub_0/S_AXI_ARESETN] \
   [get_bd_pins axi_passthrough_stub_0/EXT_ARESETN] \
@@ -724,17 +755,7 @@ Port;FD4A0000;FD4AFFFF;0|FPD;DPDMA;FD4C0000;FD4CFFFF;0|FPD;DDR_XMPU5_CFG;FD05000
   [get_bd_pins axi_bram_ctrl_0/s_axi_aresetn] \
   [get_bd_ports clk_250m_resetn]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_clk0  [get_bd_pins zynq_ultra_ps_e_0/pl_clk0] \
-  [get_bd_pins proc_sys_reset_0/slowest_sync_clk] \
-  [get_bd_pins axi_bram_ctrl_0/s_axi_aclk] \
-  [get_bd_ports clk_250m] \
-  [get_bd_pins zynq_ultra_ps_e_0/maxihpm0_fpd_aclk] \
-  [get_bd_pins axi_passthrough_stub_0/S_AXI_ACLK] \
-  [get_bd_pins axi_passthrough_stub_0/EXT_ACLK] \
-  [get_bd_pins axi_data_fifo_0/aclk] \
-  [get_bd_pins axi_crossbar_0/aclk] \
-  [get_bd_pins axi_data_fifo_1/aclk] \
-  [get_bd_pins axi_dwidth_converter_0/s_axi_aclk] \
-  [get_bd_pins axi_protocol_convert_0/aclk]
+  [get_bd_pins clk_250m/clk_in1]
   connect_bd_net -net zynq_ultra_ps_e_0_pl_resetn0  [get_bd_pins zynq_ultra_ps_e_0/pl_resetn0] \
   [get_bd_pins proc_sys_reset_0/ext_reset_in]
 
