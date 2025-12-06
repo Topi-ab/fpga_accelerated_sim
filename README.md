@@ -58,13 +58,8 @@ This produces two files under fpga_out/, which must be copied to the Kria module
 
 # Compile the C++ Application
 
-```
-docker build -t fpga-arm64 .devcontainer/
-
-docker run --rm -u $(id -u):$(id -g) -v "$PWD":/workspaces/softa fpga-arm64 bash -c "cd /workspaces/softa && \
-cmake -B build-arm64 -DCMAKE_TOOLCHAIN_FILE=toolchain-arm64.cmake -G Ninja && \
-cmake --build build-arm64"
-```
+Compilation from cli is done by running:<br>
+`./sw-build-arm.sh`
 
 # Files to Copy to the Kria Module
 
