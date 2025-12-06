@@ -28,6 +28,10 @@ The RTL code is wrapped in an emulator shell that allows software to:
 - issue a single clock pulse, and
 - read all DUT output signals.
 
+# Repository cloning
+
+`git clone --recurse-submodules git@github.com:Topi-ab/fpga_accelerated_sim.git`
+
 # FPGA Project Creation
 
 Instructions assume Vivado 2024.2 on Linux.
