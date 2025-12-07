@@ -1,0 +1,19 @@
+version: "3.9"
+
+services:
+  build-arm64:
+    # image: fpga-arm64
+    build:
+      context: .
+      dockerfile: .devcontainer/Dockerfile
+    working_dir: /workspaces/softa
+    volumes:
+      - ./:/workspaces/softa
+    user: "${HOST_UID}:${HOST_GID}"
+    environment:
+      - HOST_UID=${HOST_UID}
+      - HOST_GID=${HOST_GID}
+    command: >
+      bash -c "cmake -B build-arm64
+      -DCMAKE_TOOLCHAIN_FILE=toolchain-arm64.cmake -G Ninja
+      && cmake --build build-arm64"
