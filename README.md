@@ -13,7 +13,7 @@ Release:	24.04
 Codename:	noble
 ```
 
-### Needed packages (incomplete)
+### Needed packages on Kria Ubuntu 24.04 (incomplete)
 
 ```
 sudo apt install fpga-manager-xlnx device-tree-compiler xrt
